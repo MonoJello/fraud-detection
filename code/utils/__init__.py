@@ -10,6 +10,7 @@ from .model import (
 
 from .results import(
     roc_plot,
+    pr_auc_plot,
     ks_plot,
     cumulative_event_rate_plot,
     calibration_plot

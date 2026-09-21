@@ -1,3 +1,72 @@
+def pr_auc_plot(
+    df_1,
+    df_2,
+    models,
+    target_name
+):
+    import matplotlib.pyplot as plt
+    from sklearn.metrics import (
+        precision_recall_curve,
+        average_precision_score
+    )
+
+    fig, axes = plt.subplots(
+        1,
+        2,
+        figsize=(14, 6),
+        sharex=True,
+        sharey=True
+    )
+
+    for ax, df, title in zip(
+        axes,
+        [df_1, df_2],
+        ["Train", "Test"]
+    ):
+        y_true = df[target_name]
+
+        for model_name, probability_column in models.items():
+            probabilities = df[probability_column]
+
+            precision, recall, _ = precision_recall_curve(
+                y_true,
+                probabilities
+            )
+
+            pr_auc = average_precision_score(
+                y_true,
+                probabilities
+            )
+
+            ax.plot(
+                recall,
+                precision,
+                linewidth=2,
+                label=f"{model_name}: PR-AUC = {pr_auc:.3f}"
+            )
+
+        # No-skill baseline: prevalence of the positive class
+        positive_class_rate = y_true.mean()
+
+        ax.axhline(
+            positive_class_rate,
+            linestyle="--",
+            color="gray",
+            label="No-skill classifier"
+        )
+
+        ax.set_title(title)
+        ax.set_xlabel("Recall")
+        ax.set_ylabel("Precision")
+        ax.set_xlim(0, 1)
+        ax.set_ylim(0, 1)
+        ax.grid(alpha=0.3)
+        ax.legend(loc="lower left")
+
+    fig.suptitle("Precision–Recall Curves by Dataset", fontsize=15)
+    plt.tight_layout()
+    plt.show()
+
 def roc_plot(
     df_1,
     df_2,
